@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://www.uml.org.cn/sjms/images/2012110232.jpg">
 <meta property="og:image" content="http://www.uml.org.cn/sjms/images/2012110233.jpg">
 <meta property="og:image" content="http://www.uml.org.cn/sjms/images/2012110234.jpg">
-<meta property="og:updated_time" content="2016-08-20T05:55:46.000Z">
+<meta property="og:updated_time" content="2016-08-20T06:19:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="设计模式前传－－面向对象六大原则">
 <meta name="twitter:description" content="##面向对象1、什么叫面向对象        这个对象不是java中的实例，java语法中，我们把一个类的实例也叫做对象。这种对象严格的说应该是面向对象编程实现（OOP）中的对象，面向对象编程，也不是面向类的实例编程。对象的定义是人们要进行研究的任何事物，从最简单的整数到复杂的飞机等均可看作对象，它不仅能表示具体事务，还能表示抽象的规则、计划或事件。也有的定义为“万物皆对象”。
@@ -436,7 +436,7 @@ public class Jim {
 //具体苹果类
 public class Apple {
     public String getName(){
-        return &quot;apple&quot;;
+    return &quot;apple&quot;;
     }
 }
 public class Client {
@@ -500,34 +500,34 @@ Jim eat banana
 <p><strong>依赖的三种实现方式</strong></p>
 <ul>
 <li>接口方法中声明依赖对象。就是我们上面代码所展示的那样。</li>
-<li><p>构造方法传递依赖对象。在构造函数中的需要传递的参数是抽象类或接口的方式实现。代码如下：</p>
-<pre><code>//具体Jim人类 
-public class Jim implements People{ 
-    private Fruit fruit; 
-    public Jim(Fruit fruit){//构造方法传递依赖对象
-        this.fruit = fruit; 
-    } 
-    public void eat(Fruit fruit){
-        System.out.println(&quot;Jim eat &quot;+this.fruit.getName());
-    }
-</code></pre></li>
-<li><p>Setter方法传递依赖对象。在我们设置的setXXX方法中的参数为抽象类或接口，来实现传递依赖对象。代码如下：</p>
+<li>构造方法传递依赖对象。在构造函数中的需要传递的参数是抽象类或接口的方式实现。代码如下:</li>
+</ul>
 <pre><code>//具体Jim人类
-public class Jim implements People{     
+public class Jim implements People{
     private Fruit fruit;
-
-    public void setFruit(Fruit fruit){//setter方式传递依赖对象
+    public Jim(Fruit fruit){//构造方法传递依赖对象
         this.fruit = fruit;
     }
-
     public void eat(){
-        System.out.println(&quot;Jim eat &quot; + this.fruit.getName());
+        System.out.println(&quot;Jim eat&quot;+fruit.getName());
+    }
+}
+</code></pre><ul>
+<li>Setter方法传递依赖对象。在我们设置的setXXX方法中的参数为抽象类或接口，来实现传递依赖对象。代码如下：</li>
+</ul>
+<pre><code>//具体Jim人类
+public class Jim implements People{
+    private Fruit fruit;
+    public void setFruit(Fruit fruit){//seetter方式传递依赖
+        this.fruit = fruit;
+    }
+    public void eat(){
+        System.out.println(&quot;Jim eat&quot;+fruit.getName());
     }
 }
 </code></pre><p><strong>优点</strong>:</p>
-</li>
-<li><p>从上面的代码修改过程中，我们可以看到由于类之间松耦合的设计，面向接口编程依赖抽象而不依赖细节，所以在修改某个类的代码时，不会牵涉到其他类的修改，显著降低系统风险，提高系统健壮性。</p>
-</li>
+<ul>
+<li>从上面的代码修改过程中，我们可以看到由于类之间松耦合的设计，面向接口编程依赖抽象而不依赖细节，所以在修改某个类的代码时，不会牵涉到其他类的修改，显著降低系统风险，提高系统健壮性。</li>
 <li>还有一个优点是，在我们实际项目开发中，都是多人团队协作，每人负责某一模块。比如一个人负责开发People模块，一人负责开发Fruit模块，如果未采用依赖倒置原则，没有提取抽象，那么开发People模块的人必须等Fruit模块开发完成后自己才能开发，否则编译都无法通过，这就是单线程的开发。为了能够两人并行开发，设计时遵循依赖倒置原则，提取抽象，就可以大大提高开发进度。</li>
 </ul>
 <p><em>说到底，依赖倒置原则的核心就是面向接口编程的思想，尽量对每个实现类都提取抽象和公共接口形成接口或抽象类，依赖于抽象而不要依赖于具体实现。依赖倒置原则的本质其实就是通过抽象（抽象类或接口）使各个类或模块的实现彼此独立，不相互影响，实现模块间的松耦合。但是这个原则也是6个设计原则中最难以实现的了，如果没有实现这个原则，那么也就意味着开闭原则（对扩展开放，对修改关闭）也无法实现。</em></p>
