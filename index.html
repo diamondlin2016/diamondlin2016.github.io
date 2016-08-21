@@ -195,6 +195,205 @@
 
       <div class="body-wrap">
   
+    <article id="post-Singleton" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/08/21/Singleton/" class="article-date">
+  	<time datetime="2016-08-21T08:05:49.000Z" itemprop="datePublished">2016-08-21</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/21/Singleton/">一、创建型模式－－单例模式</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="一、创建型模式－－单例模式"><a href="#一、创建型模式－－单例模式" class="headerlink" title="##一、创建型模式－－单例模式"></a>##一、创建型模式－－单例模式</h2><p><strong>单例模式介绍</strong>：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;单例模式是应用最广的模式之一，也可能是很多初级工程师唯一会使用的设计模式。在应用这个模式时，单例对象的类必须保证只有一个实例对象存在。许多时候整个系统只需要拥有一个全局对象，这样有利于我们协调系统整体的行为。如在一个应用中，应该只需要有一个ImageLoader实例，这个ImageLoader中含有线程池、系统缓存、网络请求等，很消耗资源，因此，没有理由让它构造多个实例。这种不能自由构造对象的情况，就是单例模式的使用场景。</p>
+<p><strong>单例模式的定义</strong>：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;确保一个类只有一个实例，而且自行实例化并向整个系统提供这个实例。</p>
+<p><strong>单例模式的使用场景</strong>：</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;确保某个类有且只有一个对象的情景，避免产生多个对象，消耗过多的资源，或者某种类型的对象只应该有且只有一个。例如：创建一个对象需要消耗的资源过多，如要访问IO和数据库等资源，这时候就需要考虑使用单例模式。</p>
+<p><strong>单例模式的关键点</strong>：</p>
+<ul>
+<li>构造函数不对外公开，一般为private</li>
+<li>通过一个静态方法或者枚举返回单例类对象</li>
+<li>确保单例类的对象有且只有一个，尤其是在多线程下。</li>
+<li><em>确保单例在反序列化时不会重现构建对象。</em></li>
+</ul>
+<p><strong>单例模式的简单示例</strong>：</p>
+<pre><code>//普通员工
+publi class Staff{
+    public void work(){
+        //干活
+    }
+}
+
+//副总裁
+publi class VP extends Staff{
+    @Override
+    public void work(){
+        //管理下面的经理
+    }
+}
+
+//CEO
+publi class CEO extends Staff{
+    private static final CEO mCeo = new CEO();
+    //私有化构造方法
+    private CEO(){
+    }
+    public static CEO getCeo(){
+        return mCeo;
+    }
+
+    @Override
+    public void work(){
+        //管理下面的VP
+    }
+}
+
+//公司类
+public class Company{
+    public List&lt;Staff&gt; allStaffs = new ArrayList();
+    public void addStaff(Staff person){
+        allStaffs.add(person);
+    }
+    public void showAllStaffs(){
+        for(Staff staff:allStaffs){
+            System.out.println(&quot;Obj:&quot;+staff.hashcode());
+        }
+    }
+}
+
+public class Client {
+    public static void main(String[] args) {
+        Conpany cp = new Conpany();
+        //CEO只能通过getCeo()函数获取
+        Staff ceo1 = CEO.getCeo();
+        Staff ceo2 = CEO.getCeo();
+        //通过new创建VP对象
+        Staff vp1 = new VP();
+        Staff vp2 = new VP();
+        //通过new创建Staff对象
+        Staff staff1 = new Staff();
+        Staff staff2 = new Staff();
+        Staff staff3 = new Staff();
+        cp.addStaff(ceo1);
+        cp.addStaff(ceo2);
+        cp.addStaff(vp1);
+        cp.addStaff(vp2);
+        cp.addStaff(staff1);
+        cp.addStaff(staff2);
+        cp.addStaff(staff3);
+        cp.showAllStaffs();
+    }
+}
+</code></pre><p>每个对象都有一个唯一的hashcode值，打印结果请自行测试。</p>
+<p>从上述代码中可以看到，CEO类不能通过new的形式来创建，只能通过CEO.getCEO()函数来获取，而这个CEO对象是静态对象，并且在声明的时候就已经初始化，这就保证了CEO对象的唯一性。从输出结果可以得知两次输出的CEO对象是一样的，而VP、Staff等类型的对象都是不同的，这个实现的核心在于将CEO类的构造方法私有化，使得外部程序不能通过构造方法来构造CEO对象，而CEO类通过一个静态方法返回一个静态对象。</p>
+<p><strong>单例模式－懒汉模式</strong>：</p>
+<p>懒汉模式是声明一个静态对象，并且在用户第一次调用getInstance时进行初始化。而上述的饿汉式（CEO类）是在声明静态对象时就已经初始化。懒汉单例模式的实现代码如下。</p>
+<pre><code>public class Singleton{
+    private static Singleton instance;
+    private Singleton(){}
+    public static synchronized Singleton getInstance(){
+        if(instance == null){
+            instace = new Singleton();
+        }
+        return instance;
+    }
+}
+</code></pre><p>总结：getInstance（）方法中添加了synchronized关键字，也是就是说getInstance（）是一个同步方法，这样在多线程下保持了单例对象唯一性。但是存在一个问题，即使是instance已经被初始化（第一次调用就初始化好了），每次调用getInstance（）时都会进行同步，消耗不必要的资源，这也是懒汉单例模式存在最大的问题。</p><p><br>最后：懒汉单例模式优点时只有在需要使用的时候才初始化，在一定程度上节省资源；缺点是第一次加载时需要及时进行实例化，反应稍慢，最大的问题是每次getInstance都进行同步，造成不必要的同步开销，这种模式一般不建议使用。</p>
+<p><strong>单例模式－Double CheckLock实现单例</strong>：</p>
+<p>DCL方式实现单例模式的优点是既能够在需要的时候才初始化单例，又能够保证线程安全，且单例对象初始化之后调用getInstance不进行同步锁。代码如下：</p>
+<pre><code>public class Singleton{
+    private static Singleton instance;
+    private Singleton(){}
+    public static Singleton getInstance(){
+        if(instance == null){
+            synchronized(Singleton.class){
+                if(instance == null)
+                instace = new Singleton();
+            }
+        }
+        return instance;
+    }
+}
+</code></pre><p><strong>单例模式－枚举单例</strong>：</p>
+<p>更为简单的单例实现方式：</p>
+<pre><code>public enum SingletonEnum{
+    INSTANCE;
+    public void dosomething(){
+        system.out.println(&quot;do sth.&quot;);
+    }
+}
+</code></pre><p>枚举在java中和普通类是一样的，不仅有字段，还有自己的方法。最重要的是枚举默认是线程安全的。</p>
+<p>⚠️通过序列化可以将一个单例的实例对象写到磁盘，然后再读回来从而有效的获得一个实例。即使构造函数是私有的，反序列化时然后可以通过特殊的途径去创建一个新的实例，相当于调用该类的构造方法。反序列化操作提供一个很特殊的钩子函数，类中具有一个私有的、被实例化的方法readResolve()，这个对象可以让开发人员控制对象的反序列化。例如：上述几个示例如果要杜绝反序列化时重新生成新对象，那么必须加入如下方法：</p>
+<pre><code>private Object readResolve() throw ObjectStreamException{
+    return sInstance;
+}
+</code></pre><p>也就是说在readResolve()中将sInstance对象返回，而不是重新生成一个新的对象。对于枚举，并不存在这个问题，因为即使反序列化也不会重新生成新的实例。</p>
+<p><strong>单例模式－使用容器实现单例模式</strong>：</p>
+<p>直接贴代码</p>
+<pre><code>public class SingletonManager{
+    private static Map&lt;String,Object&gt; objMap = new HashMap();
+    private Singleton(){}
+    public static void registerService(String key,Object instance){
+        if(!objMap.containKey(key)){
+            objMap.put(key,instance);
+        }
+    }
+    public static Object getService(String key){
+        return objMap.get(key);
+    }    
+}
+</code></pre><p>在程序开始时，将许多单例类型注入到一个统一的管理类中，在使用的时候更具key获取对象对应类型的操作。这种方式可以使得我们管理多种类型的单例，并且在使用的时候通过统一的接口进行操作，降低用户的使用成本，也对用户隐藏了具体细节，降低耦合度。</p>
+<p>###扩展</p>
+<blockquote>
+<p>Android源码中单例模式的探索</p>
+</blockquote>
+<p>在Android开发中，我们经常使用context.getSystemService(Context.<em>*</em>)来获取系统级别的服务。如 WindowsMangerService、ActivityManagerService、LayoutInflater等。接下来，我们以LayoutInflater为例来说明</p>
+<p>未完待遇….</p>
+<p>Create by <a href="https://diamondlin2016.github.io/2016/08/19/about_me/" target="_blank" rel="external">Diamond_Lin</a><br>2016年8月21日。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-Six-principles-of-design-patterns" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -221,16 +420,15 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="面向对象"><a href="#面向对象" class="headerlink" title="##面向对象"></a>##面向对象</h1><p><strong>1、什么叫面向对象</strong><br>        这个对象不是java中的实例，java语法中，我们把一个类的实例也叫做对象。这种对象严格的说应该是面向对象编程实现（OOP）中的对象，面向对象编程，也不是面向类的实例编程。对象的定义是人们要进行研究的任何事物，从最简单的整数到复杂的飞机等均可看作对象，它不仅能表示具体事务，还能表示抽象的规则、计划或事件。也有的定义为“万物皆对象”。</p>
+        <h1 id="面向对象"><a href="#面向对象" class="headerlink" title="##面向对象"></a>##面向对象</h1><p><strong>1、什么叫面向对象</strong><br>这个对象不是java中的实例，java语法中，我们把一个类的实例也叫做对象。这种对象严格的说应该是面向对象编程实现（OOP）中的对象，面向对象编程，也不是面向类的实例编程。对象的定义是人们要进行研究的任何事物，从最简单的整数到复杂的飞机等均可看作对象，它不仅能表示具体事务，还能表示抽象的规则、计划或事件。也有的定义为“万物皆对象”。</p>
 <p><strong>2、为什么要面向对象</strong></p>
-<pre><code>面向对象是为了解决系统的可维护性，可扩展性，可重用性，我们再进一步思考，面向对象为什么能解决系统的可维护性，可扩展性，可重用性？
-</code></pre><p>（面向对象的理解不够深刻，待扩展）</p>
+<p>面向对象是为了解决系统的可维护性，可扩展性，可重用性，我们再进一步思考，面向对象为什么能解决系统的可维护性，可扩展性，可重用性？<br>（面向对象的理解不够深刻，待扩展）</p>
 <h1 id="设计模式前传——面向对象六大基本原则"><a href="#设计模式前传——面向对象六大基本原则" class="headerlink" title="##设计模式前传——面向对象六大基本原则"></a>##设计模式前传——面向对象六大基本原则</h1><p><strong>＊单一职能原则</strong></p>
 <p><strong>＊里氏替换原则</strong></p>
 <p><strong>＊依赖倒置原则</strong></p>
 <p><strong>＊接口隔离原则</strong></p>
 <p><strong>＊迪米特原则</strong></p>
-<p><strong>＊开闭原则</strong></p>
+<p><strong>＊合成聚合复用原则</strong></p>
 <h2 id="单一职能原则"><a href="#单一职能原则" class="headerlink" title="####单一职能原则"></a>####单一职能原则</h2><p><strong>＊定义</strong>：不要存在多于一个导致类变更的原因，即一个类只负责一项职责。</p>
 <p><strong>＊难点</strong>：职责的划分</p>
 <p><strong>＊划分</strong>：在不同的情景和生产环境下，我们对职责的细化不同的（职责单一的相对性）单一职责原则提出的是一个评价接口是否优良的标准，但是职责和变化的原因是不可度量的，因项目而异，因环境而异（不可度量性）</p>
@@ -605,18 +803,122 @@ public class Client{
 } 
 </code></pre><p><strong>分析</strong>：现在这个设计的主要问题出在CompanyManager中，根据迪米特法则，只与直接的朋友发生通信，而SubEmployee类并不是CompanyManager类的直接朋友（以局部变量出现的耦合不属于直接朋友），从逻辑上讲总公司只与他的分公司耦合就行了，与分公司的员工并没有任何联系，这样设计显然是增加了不必要的耦合。按照迪米特法则，应该避免类中出现这样非直接朋友关系的耦合。</p>
 <p><strong>修改方案</strong>：CompanyManager提供打印方法，在CompanyManager的printAllEmployee调用SubCompanyManager.printEmployee()即可。</p>
-<h2 id="开闭原则"><a href="#开闭原则" class="headerlink" title="####开闭原则"></a>####开闭原则</h2><p><strong>定义</strong>：一个软件实体如类、模块和函数应该对扩展开放，对修改关闭。</p>
+<h2 id="合成聚合复用原则"><a href="#合成聚合复用原则" class="headerlink" title="####合成聚合复用原则"></a>####合成聚合复用原则</h2><p><strong>定义</strong>：</p><p><br>&nbsp;&nbsp;&nbsp;&nbsp;经常又被人们称为合成复用原则。合成聚合复用原则是指在一个新的对象中使用原来已经存在的一些对象,使这些原来已经存在的对象称为新对象的一部分,新的对象通过向这些原来已经具有的对象委派相应的动作或者命令达到复用已有功能的目的。</p><p><br>&nbsp;&nbsp;&nbsp;&nbsp;合成复用原则更简洁的表述是:要尽量使用合成和聚合,尽量不要使用继承。</p><p><br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>聚合</strong>是关联关系的一种,用来表示一种整体和部分的拥有关系。整体持 有对部分的引用,可以调用部分的能够被访问的方法和属性等,当然这种访问往往是对接口 和抽象类的访问。作为部分可以可以同时被多个新的对象引用,同时为多个新的对象提供服务。</p><p><br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>合成</strong>也是关联关系的一种,但合成是一种比聚合强得多的一种关联关 系。在合成关系里面,部分和整体的生命周期是一样的。作为整体的新对象完全拥有对作为 部分的支配权,包括负责和支配部分的创建和销毁等,即要负责作为部分的内存的分配和内 存释放等。从这里也可以看出来,一个合成关系中的成员对象是不能喝另外的一个合成关系 共享的。</p><p><br>&nbsp;&nbsp;&nbsp;&nbsp;为何“要尽量使用合成和聚合,尽量不要使用继承”呢?这是因为:第一,继承复用破 坏包装,它把超类的实现细节直接暴露给了子类,这违背了信息隐藏的原则;第二:如果超 类发生了改变,那么子类也要发生相应的改变,这就直接导致了类与类之间的高耦合,不利 于类的扩展、复用、维护等,也带来了系统僵硬和脆弱的设计。而是用合成和聚合的时候新 对象和已有对象的交互往往是通过接口或者抽象类进行的,就可以很好的避免上面的不足, 而且这也可以让每一个新的类专注于实现自己的任务,符合单一职责原则。</p>
+<p><strong>Java代码实现</strong></p>
+<pre><code>//大臣的接口
+public interface Minister { 
+    //大臣能够执行的动作
+    public void duty(); 
+}
+
+
+//士兵的接口
+public interface Soldier {
+    //士兵能执行的动作
+    public void duty();
+}
+
+//韩信对大臣接口的实现
+public class Hanxin implements Minister { 
+    Soldier[] soldiers;//对士兵的聚合关系
+    public Hanxin() {}
+    public Hanxin(Soldier[] soldiers) { 
+        super();
+        this.soldiers =soldiers; 
+    }
+    //获取士兵集合
+    public Soldier[] getSoldiers() { return soldiers;}
+    //设置士兵集合
+    public void setSoldiers(Soldier[] soldiers) { 
+        this.soldiers = soldiers;
+    }
+    //韩信的职能
+    public void duty() { 
+        System.out.println(&quot;我是刘邦的大臣,永远忠实于刘邦&quot;);
+    }
+}
+
+//士兵A
+public class SoldierA implements Soldier { 
+//士兵A的职责
+    public void duty() { 
+        System.out.println(&quot;我是韩信的士兵A&quot;);
+    } 
+}
+
+//士兵B
+public class SoldierA implements Soldier { 
+//士兵A的职责
+    public void duty() { 
+        System.out.println(&quot;我是韩信的士兵B&quot;);
+    } 
+}
+
+//刘邦类
+public class LiuBang { 
+    Minister[] minister;//拥有大臣
+    public LiuBang() {}
+    public LiuBang(Minister[] minister) { 
+        super();
+        minister =minister; 
+    }
+    //获取大臣集合
+    public Minister[] getMinister() { return minister;}
+    //设置大臣集合
+    public void setMinister(Minister[] minister) { 
+        minister = minister;
+    }
+    //刘邦的职能
+    public void duty() { 
+        System.out.println(&quot;我是皇帝,普天之下,莫非王土;四海之内,莫非王臣&quot;);
+    }
+}
+
+/*
+* 测试类的客户端 
+*/
+public class CARPClient {
+    public static void main(String[] args) {
+        //声明并实例化士兵A
+        Soldier soldierA = new SoldierA(); 
+        //声明并实例化士兵B
+        Soldier soldierB = new SoldierB(); 
+        //构造士兵数组
+        Soldier[] soldiers = {soldierA,soldierB};
+        //声明并实例化韩信,同时传入士兵数组 
+        Minister hanxin = new Hanxin(soldiers);
+        //构造大臣数组
+        Minister[] minister = {hanxin};
+        //声明并实例化刘邦,同时传入大臣数组
+        Liubang liubang = new Liubang(minister);
+        liubang.duty();
+        //君臣
+        for(Minister minister : liubang.getMinister()){
+            aminister.duty(); 
+            for(Soldier soldier:minister.getSoldiers()){
+                soldier.duty();
+            }            
+        }
+    ｝
+｝
+</code></pre><p>程序运行结果如下:</p>
+<pre><code>我是皇帝,普天之下,莫非王土;四海之内,莫非王臣 
+我是刘邦的大臣,永远忠实于刘邦
+我是韩信的士兵A
+我是韩信的士兵B
+</code></pre><h2 id="开闭原则"><a href="#开闭原则" class="headerlink" title="####开闭原则"></a>####开闭原则</h2><p><strong>定义</strong>：一个软件实体如类、模块和函数应该对扩展开放，对修改关闭。</p>
 <p><strong>问题由来</strong>：在软件的生命周期内，因为变化、升级和维护等原因需要对软件原有代码进行修改时，可能会给旧代码中引入错误，也可能会使我们不得不对整个功能进行重构，并且需要原有代码经过重新测试。</p>
 <p><strong>解决方案</strong>：当软件需要变化时，尽量通过扩展软件实体的行为来实现变化，而不是通过修改已有的代码来实现变化。</p>
 <blockquote>
-<p>   开闭原则是面向对象设计中最基础的设计原则，它指导我们如何建立稳定灵活的系统。开闭原则可能是设计模式六项原则中定义最模糊的一个了，它只告诉我们对扩展开放，对修改关闭，可是到底如何才能做到对扩展开放，对修改关闭，并没有明确的告诉我们。以前，如果有人告诉我“你进行设计的时候一定要遵守开闭原则”，我会觉的他什么都没说，但貌似又什么都说了。因为开闭原则真的太虚了。</p>
-<p>   在仔细思考以及仔细阅读很多设计模式的文章后，终于对开闭原则有了一点认识。其实，我们遵循设计模式前面5大原则，以及使用23种设计模式的目的就是遵循开闭原则。也就是说，只要我们对前面5项原则遵守的好了，设计出的软件自然是符合开闭原则的，这个开闭原则更像是前面五项原则遵守程度的“平均得分”，前面5项原则遵守的好，平均分自然就高，说明软件设计开闭原则遵守的好；如果前面5项原则遵守的不好，则说明开闭原则遵守的不好。</p>
+<p>   开闭原则是面向对象设计中最基础的设计原则，它指导我们如何建立稳定灵活的系统。开闭原则可能是设计模式中定义最模糊的一个了，它只告诉我们对扩展开放，对修改关闭，可是到底如何才能做到对扩展开放，对修改关闭，并没有明确的告诉我们。以前，如果有人告诉我“你进行设计的时候一定要遵守开闭原则”，我会觉的他什么都没说，但貌似又什么都说了。因为开闭原则真的太虚了。</p>
+<p>   在仔细思考以及仔细阅读很多设计模式的文章后，终于对开闭原则有了一点认识。其实，我们遵循设计模式前面六大原则，以及使用23种设计模式的目的就是遵循开闭原则。也就是说，只要我们对前面六项原则遵守的好了，设计出的软件自然是符合开闭原则的，这个开闭原则更像是前面六项原则遵守程度的“平均得分”，前面六项原则遵守的好，平均分自然就高，说明软件设计开闭原则遵守的好；如果前面五项原则遵守的不好，则说明开闭原则遵守的不好。</p>
 </blockquote>
 <hr>
 <p>最后说明一下如何去遵守这六个原则。对这六个原则的遵守并不是是和否的问题，而是多和少的问题，也就是说，我们一般不会说有没有遵守，而是说遵守程度的多少。任何事都是过犹不及，设计模式的六个设计原则也是一样，制定这六个原则的目的并不是要我们刻板的遵守他们，而需要根据实际情况灵活运用。对他们的遵守程度只要在一个合理的范围内，就算是良好的设计。我们用一幅图来说明一下。</p>
 <p><img src="http://www.uml.org.cn/sjms/images/2012110233.jpg" alt="image"></p>
 <p>＊＊＊图中的每一条维度各代表一项原则，我们依据对这项原则的遵守程度在维度上画一个点，则如果对这项原则遵守的合理的话，这个点应该落在红色的同心圆内部；如果遵守的差，点将会在小圆内部；如果过度遵守，点将会落在大圆外部。一个良好的设计体现在图中，应该是六个顶点都在同心圆中的六边形。</p>
 <p><img src="http://www.uml.org.cn/sjms/images/2012110234.jpg" alt="image"><br>在上图中，设计1、设计2属于良好的设计，他们对六项原则的遵守程度都在合理的范围内；设计3、设计4设计虽然有些不足，但也基本可以接受；设计5则严重不足，对各项原则都没有很好的遵守；而设计6则遵守过渡了，设计5和设计6都是迫切需要重构的设计。</p>
+<p>Create by <a href="https://diamondlin2016.github.io/2016/08/19/about_me/" target="_blank" rel="external">Diamond_Lin</a><br>2016年8月20日。</p>
 
       
     </div>
@@ -643,10 +945,10 @@ public class Client{
 
 
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-about_me" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/08/19/hello-world/" class="article-date">
+      <a href="/2016/08/19/about_me/" class="article-date">
   	<time datetime="2016-08-19T12:54:47.000Z" itemprop="datePublished">2016-08-19</time>
 </a>
     </div>
@@ -660,7 +962,7 @@ public class Client{
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/19/hello-world/">About me</a>
+      <a class="article-title" href="/2016/08/19/about_me/">About me</a>
     </h1>
   
 
